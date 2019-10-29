@@ -4077,3 +4077,76 @@ mysql> select * from Track
 +---------+-----------------------------------------------------------------------------------------------------------------------------+---------+-------------+---------+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+--------------+------------+-----------+
 3503 rows in set (0.02 sec)
 
+mysql> SELECT Artist.Name AS Artist, COUNT(Track.TrackId) AS Track FROM Artist
+    -> INNER JOIN Artist.ArtistId = Album.ArtistId
+    -> INNER JOIN Album.Album ON Artist.ArtistId = Album.A;
+ERROR 1064 (42000): You have an error in your SQL syntax; check the manual that corresponds to your MySQL server version for the right syntax to use near '.ArtistId
+INNER JOIN Album.Album ON Artist.ArtistId = Album.A' at line 2
+mysql> SELECT Artist.Name AS Artist, COUNT(Track.TrackId) AS Track FROM Artist
+    -> INNER JOIN Album on Artist.ArtistId = Album.ArtistId
+    -> INNER JOIN Track on Album.AlbumId = Track.AlbumId
+    -> group by Artist.Name
+    -> order by count(Artist.Name)
+    -> limit 5;
++------------------------------------------------------------------------------+-------+
+| Artist                                                                       | Track |
++------------------------------------------------------------------------------+-------+
+| Aaron Goldberg                                                               |     1 |
+| Alberto Turco & Nova Schola Gregoriana                                       |     1 |
+| Hilary Hahn, Jeffrey Kahane, Los Angeles Chamber Orchestra & Margaret Batjer |     1 |
+| Yo-Yo Ma                                                                     |     1 |
+| Berliner Philharmoniker, Claudio Abbado & Sabine Meyer                       |     1 |
++------------------------------------------------------------------------------+-------+
+5 rows in set (0.01 sec)
+
+mysql> SELECT Artist.Name AS Artist, COUNT(Track.TrackId) AS Track FROM Artist
+    -> INNER JOIN Album on Artist.ArtistId = Album.ArtistId
+    -> INNER JOIN Track on Album.AlbumId = Track.AlbumId
+    -> group by Artist.Name
+    -> order by count(Track.TrackId)
+    -> limit 5;
++--------------------------------------------------------+-------+
+| Artist                                                 | Track |
++--------------------------------------------------------+-------+
+| Chicago Symphony Orchestra & Fritz Reiner              |     1 |
+| Martin Roscoe                                          |     1 |
+| Luciana Souza/Romero Lubambo                           |     1 |
+| Berliner Philharmoniker, Claudio Abbado & Sabine Meyer |     1 |
+| Sir Georg Solti, Sumi Jo & Wiener Philharmoniker       |     1 |
++--------------------------------------------------------+-------+
+5 rows in set (0.01 sec)
+
+mysql> SELECT Artist.Name AS Artist, COUNT(Track.TrackId) AS Track FROM Artist
+    -> INNER JOIN Album on Artist.ArtistId = Album.ArtistId
+    -> INNER JOIN Track on Album.AlbumId = Track.AlbumId
+    -> group by Artist.Name
+    -> order by count(Track.TrackId)
+    -> desc limit 5;
++--------------+-------+
+| Artist       | Track |
++--------------+-------+
+| Iron Maiden  |   213 |
+| U2           |   135 |
+| Led Zeppelin |   114 |
+| Metallica    |   112 |
+| Deep Purple  |    92 |
++--------------+-------+
+5 rows in set (0.00 sec)
+
+mysql> INSERT INTO Track (Name, AlbumId, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice)
+    -> VALUES ("I Will Follow", 348, 2, 1, "U2", 220000, 1234, 0.99);
+ERROR 1452 (23000): Cannot add or update a child row: a foreign key constraint fails (`Chinook`.`Track`, CONSTRAINT `FK_TrackAlbumId` FOREIGN KEY (`AlbumId`) REFERENCES `Album` (`AlbumId`) ON DELETE NO ACTION ON UPDATE NO ACTION)
+mysql> INSERT INTO Track (Name, MediaTypeId, GenreId, Composer, Milliseconds, Bytes, UnitPrice)
+    -> VALUES ("I Will Follow", 2, 1, "U2", 220000, 1234, 0.99);
+Query OK, 1 row affected (0.02 sec)
+
+mysql> select * from Track
+    -> where Name = 'I Will Follow';
++---------+---------------+---------+-------------+---------+----------+--------------+---------+-----------+
+| TrackId | Name          | AlbumId | MediaTypeId | GenreId | Composer | Milliseconds | Bytes   | UnitPrice |
++---------+---------------+---------+-------------+---------+----------+--------------+---------+-----------+
+|    3011 | I Will Follow |     238 |           1 |       1 | U2       |       218253 | 7184825 |      0.99 |
+|    3505 | I Will Follow |    NULL |           2 |       1 | U2       |       220000 |    1234 |      0.99 |
++---------+---------------+---------+-------------+---------+----------+--------------+---------+-----------+
+2 rows in set (0.00 sec)
+
